@@ -8,9 +8,9 @@ Run [Django](https://www.djangoproject.com) projects from source using [gunicorn
 In the root of the repo for your Django project, add a Dockerfile for the project. For example, this file could contain:
 ```dockerfile
 FROM praekeltfoundation/django-bootstrap
-ENV DJANGO_SETTINGS_MODULE "hellomama_registration.settings"
+ENV DJANGO_SETTINGS_MODULE "my_django_project.settings"
 RUN django-admin collectstatic --noinput
-CMD ["hellomama_registration.wsgi:application"]
+CMD ["my_django_project.wsgi:application"]
 ```
 
 Let's go through these lines one-by-one:
