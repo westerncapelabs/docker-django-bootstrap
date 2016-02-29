@@ -30,10 +30,10 @@ In addition, when the image is run, a `django-admin migrate` is executed to migr
 #### Step 2: Add a `.dockerignore` file
 Add a file called `.dockerignore` to the root of your project. At a minimum, it should probably contain:
 ```gitignore
-/.git/
+.git
 ```
 
-Docker uses various caching mechanisms to speed up image build times. One of those mechanisms is to detect if any of the files being `ADD`/`COPY`-ed to the image have changed. You can add a `.dockerignore` file to have Docker ignore changes to certain files. The format is similar to a `.gitignore` file. For more information, see the [Docker documentation](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
+Docker uses various caching mechanisms to speed up image build times. One of those mechanisms is to detect if any of the files being `ADD`/`COPY`-ed to the image have changed. You can add a `.dockerignore` file to have Docker ignore changes to certain files. This is conceptually similar to a `.gitignore` file but has different syntax. For more information, see the [Docker documentation](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
 
 It's a good idea to have Docker ignore the `.git` directory because every git operation you perform will result in files changing in that directory (whether you end up in the same state in git as you previously were or not). Also, you probably shouldn't be working with your git repo inside the container.
 
