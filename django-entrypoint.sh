@@ -5,5 +5,5 @@ django-admin migrate
 exec gunicorn \
     --bind :8000 \
     --workers 2 \
-    --access-logs - \
+    --access-logfile - \
     "$@"
