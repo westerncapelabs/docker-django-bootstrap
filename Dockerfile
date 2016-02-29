@@ -1,4 +1,5 @@
 FROM praekeltfoundation/python-base
+MAINTAINER Praekelt Foundation <dev@praekeltfoundation.org>
 
 # Dependencies for psycopg2
 RUN apt-get-install.sh libpq5
