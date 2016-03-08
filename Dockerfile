@@ -13,4 +13,4 @@ CMD ["django-entrypoint.sh"]
 
 ONBUILD COPY . /app
 ONBUILD WORKDIR /app
-ONBUILD RUN pip install .
+ONBUILD RUN pip install -e .
