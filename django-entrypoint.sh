@@ -5,7 +5,7 @@ django-admin migrate
 if [ -z "$APP_MODULE" ]; then
   echo "The \$APP_MODULE environment variable must be set to the WSGI application module name"
   exit 1
-done
+fi
 
 exec gunicorn "$APP_MODULE" \
     --bind :8000 \
