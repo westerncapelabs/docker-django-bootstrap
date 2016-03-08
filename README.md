@@ -10,14 +10,14 @@ In the root of the repo for your Django project, add a Dockerfile for the projec
 FROM praekeltfoundation/django-bootstrap
 ENV DJANGO_SETTINGS_MODULE "my_django_project.settings"
 RUN django-admin collectstatic --noinput
-CMD ["my_django_project.wsgi:application"]
+ENV APP_MODULE "my_django_project.wsgi:application"
 ```
 
 Let's go through these lines one-by-one:
  1. The `FROM` instruction here tells us which image to base this image on. We use the `django-bootstrap` base image.
  2. We set the `DJANGO_SETTINGS_MODULE` environment variable so that Django knows where to find its settings. This is necessary for any `django-admin` commands to work.
  3. *Optional:* If you need to run any build-time tasks, such as collecting static assets, now's the time to do that.
- 4. We use the `CMD` instruction to pass arguments to `gunicorn`, which is installed and run in the `django-bootstrap` base image. In this case we need to tell `gunicorn` which WSGI application to run.
+ 4. We set the `APP_MODULE` environment variable that will be passed to `gunicorn`, which is installed and run in the `django-bootstrap` base image. `gunicorn` needs to know which WSGI application to run.
 
 The `django-bootstrap` base image actually does a few steps automatically using Docker's `ONBUILD` instruction. It will:
  1. `COPY . /app` - copies the source of your project into the image
@@ -25,7 +25,19 @@ The `django-bootstrap` base image actually does a few steps automatically using 
  3. `RUN pip install .` - installs your project using `pip`
 All these instructions occur directly after the `FROM` instruction in your Dockerfile.
 
-In addition, when the image is run, a `django-admin migrate` is executed to migrate the database schema.
+By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `gunicorn` to run the application.
+
+You can skip the execution of this script and run other commands by overriding the `CMD` instruction. For example, to run a Celery worker, add the following to your Dockerfile:
+```dockerfile
+CMD ["celery", "worker", \
+     "--app", "my_django_project", \
+     "--loglevel", info"]
+```
+
+Alternatively, you can override the command at runtime:
+```shell
+docker run my_django_project_image celery worker --app my_django_project --loglevel info
+```
 
 #### Step 2: Add a `.dockerignore` file
 Add a file called `.dockerignore` to the root of your project. At a minimum, it should probably contain:
