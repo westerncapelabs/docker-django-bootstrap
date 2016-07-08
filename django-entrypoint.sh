@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-django-admin migrate
+django-admin migrate --noinput
 
 if [ -z "$APP_MODULE" ]; then
   echo "The \$APP_MODULE environment variable must be set to the WSGI application module name"
