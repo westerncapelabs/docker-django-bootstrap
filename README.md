@@ -31,7 +31,7 @@ You can skip the execution of this script and run other commands by overriding t
 ```dockerfile
 CMD ["celery", "worker", \
      "--app", "my_django_project", \
-     "--loglevel", info"]
+     "--loglevel", "info"]
 ```
 
 Alternatively, you can override the command at runtime:
