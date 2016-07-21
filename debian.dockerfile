@@ -1,4 +1,4 @@
-FROM praekeltfoundation/python-base
+FROM praekeltfoundation/python-base:debian
 MAINTAINER Praekelt Foundation <dev@praekeltfoundation.org>
 
 # Dependencies for psycopg2
