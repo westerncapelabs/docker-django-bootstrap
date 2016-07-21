@@ -1,4 +1,5 @@
-#!/bin/bash -e
+#!/usr/bin/env sh
+set -e
 
 django-admin migrate --noinput
 
