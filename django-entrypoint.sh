@@ -8,7 +8,9 @@ if [ -z "$APP_MODULE" ]; then
   exit 1
 fi
 
+nginx
+
 exec gunicorn "$APP_MODULE" \
-    --bind :8000 \
+    --bind unix:/var/run/gunicorn.sock \
     --access-logfile - \
     "$@"
