@@ -1,0 +1,29 @@
+sudo: required
+services:
+  - docker
+language: bash
+
+env:
+  - VARIANT=debian
+  - VARIANT=alpine
+
+# Update Docker Engine
+before_install:
+  - sudo apt-get update
+  - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-engine
+
+before_script:
+  - DOCKER_TAG="praekeltfoundation/django-bootstrap:$VARIANT"
+  - DOCKERFILE="$VARIANT.dockerfile"
+script:
+  # Build bootstrap image
+  - docker build --tag "$DOCKER_TAG" --file "$DOCKERFILE" .
+  # Build example project image, run and wait for it to start
+  - docker build --tag mysite --file "$DOCKERFILE" example
+  - docker run --detach --name mysite -p 8000:8000 mysite && sleep 5
+  # Simple check to see if the site is up
+  - curl -fs http://localhost:8000 | fgrep '<h1>It worked!</h1>'
+  - docker stop mysite
+
+after_script:
+  - docker images
