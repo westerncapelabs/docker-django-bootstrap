@@ -10,6 +10,5 @@ fi
 
 exec gunicorn "$APP_MODULE" \
     --bind :8000 \
-    --workers 2 \
     --access-logfile - \
     "$@"

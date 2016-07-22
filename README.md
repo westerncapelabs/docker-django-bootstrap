@@ -31,7 +31,7 @@ You can skip the execution of this script and run other commands by overriding t
 ```dockerfile
 CMD ["celery", "worker", \
      "--app", "my_django_project", \
-     "--loglevel", info"]
+     "--loglevel", "info"]
 ```
 
 Alternatively, you can override the command at runtime:
@@ -55,3 +55,16 @@ Choose one of the following projects to use to serve static files:
 * [WhiteNoise](http://whitenoise.evans.io)
 
 Serving static files using Django is generally not advised due to performance issues. In pre-Docker land, we would normally use something like Nginx to serve all the static files at the `/static/` path. But with Docker (and Seed Stack), we're not necessarily sure where our containers are running and their filesystems are fairly isolated from the outside world. We'd also like to keep to running a single process in each Docker container and running Nginx inside a container gets a bit complicated.
+
+## Configuration
+Gunicorn is run with some basic configuration:
+* Runs WSGI app defined in `APP_MODULE` environment variable
+* Listens on `:8000` (and port 8000 is exposed in the Dockerfile)
+* Logs access logs to stderr
+
+Extra settings can be provided by overriding the `CMD` instruction to pass extra parameters to the entrypoint script. For example:
+```dockerfile
+CMD ["django-entrypoint.sh", "--threads", "5", "--timeout", "50"]
+```
+
+See all the settings available for gunicorn [here](http://docs.gunicorn.org/en/latest/settings.html). A common setting is the number of Gunicorn workers which can be set with the `WEB_CONCURRENCY` environment variable.
