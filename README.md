@@ -4,6 +4,12 @@ Dockerfile for quickly running Django projects in a Docker container.
 Run [Django](https://www.djangoproject.com) projects from source using [gunicorn](http://gunicorn.org).
 
 ## Usage
+#### Step 0: Get your Django project in shape
+There are a few ways that your Django project needs to be set up in order to be compatible with this Docker image.
+* Your project must have a `setup.py`. All dependencies (including Django itself) need to be listed as `install_requires`.
+* Your project's [static files](https://docs.djangoproject.com/en/1.9/howto/static-files/) must be served from the `/static/` path (i.e. `STATIC_PATH` must be set to that) and must be stored at `BASE_DIR/static` (i.e. `STATIC_ROOT` must be set to that).
+* Your project's media files must be served from `/media/` (`MEDIA_URL`) and must be stored at `BASE_DIR/media` (`MEDIA_ROOT`).
+
 #### Step 1: Write a Dockerfile
 In the root of the repo for your Django project, add a Dockerfile for the project. For example, this file could contain:
 ```dockerfile
@@ -48,13 +54,6 @@ Add a file called `.dockerignore` to the root of your project. At a minimum, it 
 Docker uses various caching mechanisms to speed up image build times. One of those mechanisms is to detect if any of the files being `ADD`/`COPY`-ed to the image have changed. You can add a `.dockerignore` file to have Docker ignore changes to certain files. This is conceptually similar to a `.gitignore` file but has different syntax. For more information, see the [Docker documentation](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
 
 It's a good idea to have Docker ignore the `.git` directory because every git operation you perform will result in files changing in that directory (whether you end up in the same state in git as you previously were or not). Also, you probably shouldn't be working with your git repo inside the container.
-
-#### Step 3: Use a static file serving middleware *(optional but recommended)*
-Choose one of the following projects to use to serve static files:
-* [DJ-Static](https://github.com/kennethreitz/dj-static)
-* [WhiteNoise](http://whitenoise.evans.io)
-
-Serving static files using Django is generally not advised due to performance issues. In pre-Docker land, we would normally use something like Nginx to serve all the static files at the `/static/` path. But with Docker (and Seed Stack), we're not necessarily sure where our containers are running and their filesystems are fairly isolated from the outside world. We'd also like to keep to running a single process in each Docker container and running Nginx inside a container gets a bit complicated.
 
 ## Configuration
 Gunicorn is run with some basic configuration:
