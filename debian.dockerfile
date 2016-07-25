@@ -16,6 +16,7 @@ RUN pip install gunicorn
 
 # Copy in the Nginx config
 COPY ./nginx/ /etc/nginx/
+RUN rm /etc/nginx/conf.d/default.conf
 
 EXPOSE 8000
 
