@@ -22,7 +22,7 @@ script:
   - docker build --tag mysite --file "example/$DOCKERFILE" example
   - docker run --detach --name mysite -p 8000:8000 mysite && sleep 5
   # Simple check to see if the site is up
-  - curl -fs http://localhost:8000 | fgrep '<h1>It worked!</h1>'
+  - curl -fsL http://localhost:8000/admin | fgrep '<title>Log in | Django site admin</title>'
   - docker stop mysite
 
 after_script:
