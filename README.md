@@ -1,7 +1,7 @@
 # docker-django-bootstrap
 Dockerfile for quickly running Django projects in a Docker container.
 
-Run [Django](https://www.djangoproject.com) projects from source using [gunicorn](http://gunicorn.org).
+Run [Django](https://www.djangoproject.com) projects from source using [Gunicorn](http://gunicorn.org) and [Nginx](http://nginx.org).
 
 ## Usage
 #### Step 0: Get your Django project in shape
@@ -31,7 +31,7 @@ The `django-bootstrap` base image actually does a few steps automatically using 
  3. `RUN pip install .` - installs your project using `pip`
 All these instructions occur directly after the `FROM` instruction in your Dockerfile.
 
-By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `gunicorn` to run the application.
+By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
 
 You can skip the execution of this script and run other commands by overriding the `CMD` instruction. For example, to run a Celery worker, add the following to your Dockerfile:
 ```dockerfile
@@ -56,9 +56,10 @@ Docker uses various caching mechanisms to speed up image build times. One of tho
 It's a good idea to have Docker ignore the `.git` directory because every git operation you perform will result in files changing in that directory (whether you end up in the same state in git as you previously were or not). Also, you probably shouldn't be working with your git repo inside the container.
 
 ## Configuration
+### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
-* Listens on `:8000` (and port 8000 is exposed in the Dockerfile)
+* Listens on a Unix socket at `/var/run/gunicorn.sock`
 * Logs access logs to stderr
 
 Extra settings can be provided by overriding the `CMD` instruction to pass extra parameters to the entrypoint script. For example:
@@ -67,3 +68,14 @@ CMD ["django-entrypoint.sh", "--threads", "5", "--timeout", "50"]
 ```
 
 See all the settings available for gunicorn [here](http://docs.gunicorn.org/en/latest/settings.html). A common setting is the number of Gunicorn workers which can be set with the `WEB_CONCURRENCY` environment variable.
+
+### Nginx
+Nginx is set up with mostly default config:
+* Access logs are sent to stdout, error logs to stderr
+* Listens on port 8000 (and this port is exposed in the Dockerfile)
+* Serves files from `/static/` and `/media/`
+* All other requests are proxied to the Gunicorn socket
+
+Generally you shouldn't need to adjust Nginx's settings. If you do, the configuration files of interest are at:
+* `/etc/nginx/nginx.conf`: Main configuration
+* `/etc/nginx/conf.d/django.conf`: Proxy configuration
