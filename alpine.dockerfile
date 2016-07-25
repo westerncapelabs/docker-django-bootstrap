@@ -7,12 +7,12 @@ RUN apk --no-cache add libpq nginx
 # Install gunicorn
 RUN pip install gunicorn
 
-# Copy in the config files
+# Copy in the Nginx config
 COPY ./nginx/ /etc/nginx/
-COPY ./django-entrypoint.sh /scripts/
 
 EXPOSE 8000
 
+COPY ./django-entrypoint.sh /scripts/
 CMD ["django-entrypoint.sh"]
 
 ONBUILD COPY . /app

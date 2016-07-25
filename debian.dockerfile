@@ -14,12 +14,12 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC64107
 # Install gunicorn
 RUN pip install gunicorn
 
-# Copy in the config files
+# Copy in the Nginx config
 COPY ./nginx/ /etc/nginx/
-COPY ./django-entrypoint.sh /scripts/
 
 EXPOSE 8000
 
+COPY ./django-entrypoint.sh /scripts/
 CMD ["django-entrypoint.sh"]
 
 ONBUILD COPY . /app
