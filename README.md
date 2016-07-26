@@ -20,6 +20,8 @@ If your project makes use of user-uploaded media files, it must be set up as fol
 * `MEDIA_URL = '/media/'`
 * `MEDIA_ROOT` = `BASE_DIR/media` or `BASE_DIR/mediafiles`
 
+***Note:*** Any files stored in directories called `static`, `staticfiles`, `media`, or `mediafiles` in the project root directory will be served by Nginx. Do not store anything here that you do not want the world to see.
+
 #### Step 1: Write a Dockerfile
 In the root of the repo for your Django project, add a Dockerfile for the project. For example, this file could contain:
 ```dockerfile
