@@ -6,9 +6,19 @@ Run [Django](https://www.djangoproject.com) projects from source using [Gunicorn
 ## Usage
 #### Step 0: Get your Django project in shape
 There are a few ways that your Django project needs to be set up in order to be compatible with this Docker image.
-* Your project must have a `setup.py`. All dependencies (including Django itself) need to be listed as `install_requires`.
-* Your project's [static files](https://docs.djangoproject.com/en/1.9/howto/static-files/) must be served from the `/static/` path (i.e. `STATIC_PATH` must be set to that) and must be stored in either `BASE_DIR/static` or `BASE_DIR/staticfiles` (i.e. `STATIC_ROOT` must be set to one of those).
-* Your project's media files must be served from `/media/` (`MEDIA_URL`) and must be stored in either `BASE_DIR/media` or `BASE_DIR/mediafiles` (`MEDIA_ROOT`).
+
+**setup.py**  
+Your project must have a `setup.py`. All dependencies (including Django itself) need to be listed as `install_requires`.
+
+**Static files**  
+Your project's [static files](https://docs.djangoproject.com/en/1.9/howto/static-files/) must be set up as follows:
+* `STATIC_URL = '/static/'`
+* `STATIC_ROOT` = `BASE_DIR/static` or `BASE_DIR/staticfiles`
+
+**Media files**  
+If your project makes use of user-uploaded media files, it must be set up as follows:
+* `MEDIA_URL = '/media/'`
+* `MEDIA_ROOT` = `BASE_DIR/media` or `BASE_DIR/mediafiles`
 
 #### Step 1: Write a Dockerfile
 In the root of the repo for your Django project, add a Dockerfile for the project. For example, this file could contain:
