@@ -1,9 +1,27 @@
 # docker-django-bootstrap
 Dockerfile for quickly running Django projects in a Docker container.
 
-Run [Django](https://www.djangoproject.com) projects from source using [gunicorn](http://gunicorn.org).
+Run [Django](https://www.djangoproject.com) projects from source using [Gunicorn](http://gunicorn.org) and [Nginx](http://nginx.org).
 
 ## Usage
+#### Step 0: Get your Django project in shape
+There are a few ways that your Django project needs to be set up in order to be compatible with this Docker image.
+
+**setup.py**  
+Your project must have a `setup.py`. All dependencies (including Django itself) need to be listed as `install_requires`.
+
+**Static files**  
+Your project's [static files](https://docs.djangoproject.com/en/1.9/howto/static-files/) must be set up as follows:
+* `STATIC_URL = '/static/'`
+* `STATIC_ROOT` = `BASE_DIR/static` or `BASE_DIR/staticfiles`
+
+**Media files**  
+If your project makes use of user-uploaded media files, it must be set up as follows:
+* `MEDIA_URL = '/media/'`
+* `MEDIA_ROOT` = `BASE_DIR/media` or `BASE_DIR/mediafiles`
+
+***Note:*** Any files stored in directories called `static`, `staticfiles`, `media`, or `mediafiles` in the project root directory will be served by Nginx. Do not store anything here that you do not want the world to see.
+
 #### Step 1: Write a Dockerfile
 In the root of the repo for your Django project, add a Dockerfile for the project. For example, this file could contain:
 ```dockerfile
@@ -25,7 +43,7 @@ The `django-bootstrap` base image actually does a few steps automatically using 
  3. `RUN pip install .` - installs your project using `pip`
 All these instructions occur directly after the `FROM` instruction in your Dockerfile.
 
-By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `gunicorn` to run the application.
+By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
 
 You can skip the execution of this script and run other commands by overriding the `CMD` instruction. For example, to run a Celery worker, add the following to your Dockerfile:
 ```dockerfile
@@ -49,18 +67,12 @@ Docker uses various caching mechanisms to speed up image build times. One of tho
 
 It's a good idea to have Docker ignore the `.git` directory because every git operation you perform will result in files changing in that directory (whether you end up in the same state in git as you previously were or not). Also, you probably shouldn't be working with your git repo inside the container.
 
-#### Step 3: Use a static file serving middleware *(optional but recommended)*
-Choose one of the following projects to use to serve static files:
-* [DJ-Static](https://github.com/kennethreitz/dj-static)
-* [WhiteNoise](http://whitenoise.evans.io)
-
-Serving static files using Django is generally not advised due to performance issues. In pre-Docker land, we would normally use something like Nginx to serve all the static files at the `/static/` path. But with Docker (and Seed Stack), we're not necessarily sure where our containers are running and their filesystems are fairly isolated from the outside world. We'd also like to keep to running a single process in each Docker container and running Nginx inside a container gets a bit complicated.
-
 ## Configuration
+### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
-* Listens on `:8000` (and port 8000 is exposed in the Dockerfile)
-* Logs access logs to stderr
+* Listens on a Unix socket at `/var/run/gunicorn.sock`
+* Access logs can be logged to stderr by setting the `GUNICORN_ACCESS_LOGS` environment variable to a non-empty value.
 
 Extra settings can be provided by overriding the `CMD` instruction to pass extra parameters to the entrypoint script. For example:
 ```dockerfile
@@ -68,3 +80,14 @@ CMD ["django-entrypoint.sh", "--threads", "5", "--timeout", "50"]
 ```
 
 See all the settings available for gunicorn [here](http://docs.gunicorn.org/en/latest/settings.html). A common setting is the number of Gunicorn workers which can be set with the `WEB_CONCURRENCY` environment variable.
+
+### Nginx
+Nginx is set up with mostly default config:
+* Access logs are sent to stdout, error logs to stderr
+* Listens on port 8000 (and this port is exposed in the Dockerfile)
+* Serves files from `/static/` and `/media/`
+* All other requests are proxied to the Gunicorn socket
+
+Generally you shouldn't need to adjust Nginx's settings. If you do, the configuration files of interest are at:
+* `/etc/nginx/nginx.conf`: Main configuration
+* `/etc/nginx/conf.d/django.conf`: Proxy configuration
