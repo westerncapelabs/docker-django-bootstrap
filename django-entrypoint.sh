@@ -12,5 +12,5 @@ nginx
 
 exec gunicorn "$APP_MODULE" \
     --bind unix:/var/run/gunicorn.sock \
-    --access-logfile - \
+    "${GUNICORN_ACCESS_LOGS:+--access-logfile -}" \
     "$@"
