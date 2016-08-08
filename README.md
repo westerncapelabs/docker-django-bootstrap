@@ -39,7 +39,8 @@ Let's go through these lines one-by-one:
 
 The `django-bootstrap` base image actually does a few steps automatically using Docker's `ONBUILD` instruction. It will:
  1. `COPY . /app` - copies the source of your project into the image
- 2. `RUN pip install -e .` - installs your project using `pip`
+ 2. `RUN chown -R django:django /app` - ensures the `django` user can write to `/app` and its subdirectories
+ 3. `RUN pip install -e .` - installs your project using `pip`
 All these instructions occur directly after the `FROM` instruction in your Dockerfile.
 
 By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
