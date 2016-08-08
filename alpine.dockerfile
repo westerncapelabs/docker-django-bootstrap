@@ -20,6 +20,7 @@ EXPOSE 8000
 COPY ./django-entrypoint.sh /scripts/
 CMD ["django-entrypoint.sh"]
 
+WORKDIR /app
+
 ONBUILD COPY . /app
-ONBUILD WORKDIR /app
 ONBUILD RUN pip install -e .
