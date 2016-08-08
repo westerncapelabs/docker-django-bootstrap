@@ -18,6 +18,9 @@ RUN pip install gunicorn
 COPY ./nginx/ /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
+RUN addgroup django \
+    && adduser --system --ingroup django django
+
 EXPOSE 8000
 
 COPY ./django-entrypoint.sh /scripts/

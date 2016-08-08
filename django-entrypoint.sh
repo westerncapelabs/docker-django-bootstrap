@@ -10,7 +10,8 @@ django-admin migrate --noinput
 
 nginx
 
-exec gunicorn "$APP_MODULE" \
+exec su-exec django \
+  gunicorn "$APP_MODULE" \
     --bind unix:/var/run/gunicorn.sock \
     ${GUNICORN_ACCESS_LOGS:+--access-logfile -} \
     "$@"
