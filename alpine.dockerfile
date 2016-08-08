@@ -11,7 +11,9 @@ RUN pip install gunicorn
 COPY ./nginx/ /etc/nginx/
 
 RUN addgroup django \
-    && adduser -S -G django django
+    && adduser -S -G django django \
+    && mkdir /var/run/gunicorn \
+    && chown django:django /var/run/gunicorn
 
 EXPOSE 8000
 

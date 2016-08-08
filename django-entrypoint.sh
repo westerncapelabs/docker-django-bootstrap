@@ -12,6 +12,6 @@ nginx
 
 exec su-exec django \
   gunicorn "$APP_MODULE" \
-    --bind unix:/var/run/gunicorn.sock \
+    --bind unix:/var/run/gunicorn/gunicorn.sock \
     ${GUNICORN_ACCESS_LOGS:+--access-logfile -} \
     "$@"

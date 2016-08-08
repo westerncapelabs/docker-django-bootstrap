@@ -19,7 +19,9 @@ COPY ./nginx/ /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
 RUN addgroup django \
-    && adduser --system --ingroup django django
+    && adduser --system --ingroup django django \
+    && mkdir /var/run/gunicorn \
+    && chown django:django /var/run/gunicorn
 
 EXPOSE 8000
 
