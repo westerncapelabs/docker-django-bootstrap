@@ -71,6 +71,7 @@ It's a good idea to have Docker ignore the `.git` directory because every git op
 ### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
+* Starts workers under the `django` user and group
 * Listens on a Unix socket at `/var/run/gunicorn/gunicorn.sock`
 * Access logs can be logged to stderr by setting the `GUNICORN_ACCESS_LOGS` environment variable to a non-empty value.
 
