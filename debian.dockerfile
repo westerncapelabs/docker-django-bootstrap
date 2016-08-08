@@ -18,10 +18,13 @@ RUN pip install gunicorn
 COPY ./nginx/ /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
-RUN addgroup django \
-    && adduser --system --ingroup django django \
+# Create gunicorn user and group, make directory for socket, and add nginx user
+# to gunicorn group so that it can read/write to the socket.
+RUN addgroup gunicorn \
+    && adduser --system --ingroup gunicorn gunicorn \
     && mkdir /var/run/gunicorn \
-    && chown django:django /var/run/gunicorn
+    && chown gunicorn:gunicorn /var/run/gunicorn \
+    && adduser nginx gunicorn
 
 EXPOSE 8000
 
@@ -33,5 +36,5 @@ WORKDIR /app
 ONBUILD COPY . /app
 # chown the app directory after copying in case the copied files include
 # subdirectories that will be written to, e.g. the media directory
-ONBUILD RUN chown -R django:django /app
+ONBUILD RUN chown -R gunicorn:gunicorn /app
 ONBUILD RUN pip install -e .
