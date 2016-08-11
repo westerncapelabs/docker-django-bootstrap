@@ -39,8 +39,8 @@ Let's go through these lines one-by-one:
 
 The `django-bootstrap` base image actually does a few steps automatically using Docker's `ONBUILD` instruction. It will:
  1. `COPY . /app` - copies the source of your project into the image
- 2. `WORKDIR /app` - changes the current working directory to `/app`
- 3. `RUN pip install .` - installs your project using `pip`
+ 2. `RUN chown -R gunicorn:gunicorn /app` - ensures the `gunicorn` user can write to `/app` and its subdirectories
+ 3. `RUN pip install -e .` - installs your project using `pip`
 All these instructions occur directly after the `FROM` instruction in your Dockerfile.
 
 By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
@@ -71,7 +71,8 @@ It's a good idea to have Docker ignore the `.git` directory because every git op
 ### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
-* Listens on a Unix socket at `/var/run/gunicorn.sock`
+* Starts workers under the `gunicorn` user and group
+* Listens on a Unix socket at `/var/run/gunicorn/gunicorn.sock`
 * Access logs can be logged to stderr by setting the `GUNICORN_ACCESS_LOGS` environment variable to a non-empty value.
 
 Extra settings can be provided by overriding the `CMD` instruction to pass extra parameters to the entrypoint script. For example:
