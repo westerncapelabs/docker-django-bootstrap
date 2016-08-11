@@ -17,7 +17,7 @@ before_script:
   - DOCKERFILE="$VARIANT.dockerfile"
 script:
   - docker build --tag "$IMAGE_TAG" --file "$DOCKERFILE" .
-  - ./test.sh "$IMAGE_TAG"
+  - ./test.sh "$VARIANT"
 
 after_script:
   - docker images
