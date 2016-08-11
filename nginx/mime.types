@@ -10,6 +10,7 @@ types {
     application/atom+xml                  atom;
     application/rss+xml                   rss;
 
+    text/csv                              csv; # Added
     text/mathml                           mml;
     text/plain                            txt;
     text/vnd.sun.j2me.app-descriptor      jad;
