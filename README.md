@@ -45,6 +45,8 @@ All these instructions occur directly after the `FROM` instruction in your Docke
 
 By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
 
+This [`django-entrypoint.sh`] script also allows you to create a Django super user account if needed. Setting the `SUPERUSER_PASSWORD` environment variable will result in a Django superuser account being made with the `admin` username. This will only happen if no `admin` user exists. 
+
 You can skip the execution of this script and run other commands by overriding the `CMD` instruction. For example, to run a Celery worker, add the following to your Dockerfile:
 ```dockerfile
 CMD ["celery", "worker", \
