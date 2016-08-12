@@ -8,6 +8,9 @@ function usage() {
 
 VARIANT="$1"
 shift || { usage >&2; exit 1; }
+trap '{ set +x; echo; echo FAILED; echo; } >&2' ERR
+
+set -x
 
 # Build example project image, run and wait for it to start
 docker build --tag mysite --file "example/$VARIANT.dockerfile" example
