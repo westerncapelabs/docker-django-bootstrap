@@ -13,19 +13,11 @@ before_install:
   - sudo apt-get install -qy -o Dpkg::Options::="--force-confold" docker-engine
 
 before_script:
-  - DOCKER_TAG="praekeltfoundation/django-bootstrap:$VARIANT"
+  - IMAGE_TAG="praekeltfoundation/django-bootstrap:$VARIANT"
   - DOCKERFILE="$VARIANT.dockerfile"
 script:
-  # Build bootstrap image
-  - docker build --tag "$DOCKER_TAG" --file "$DOCKERFILE" .
-  # Build example project image, run and wait for it to start
-  - docker build --tag mysite --file "example/$DOCKERFILE" example
-  - docker run --detach --name mysite -p 8000:8000 mysite && sleep 5
-  # Simple check to see if the site is up
-  - curl -fsL http://localhost:8000/admin | fgrep '<title>Log in | Django site admin</title>'
-  # Check that we can get a static file served by Nginx
-  - curl -fsL http://localhost:8000/static/admin/css/base.css | fgrep 'DJANGO Admin styles'
-  - docker stop mysite
+  - docker build --tag "$IMAGE_TAG" --file "$DOCKERFILE" .
+  - ./test.sh "$VARIANT"
 
 after_script:
   - docker images
