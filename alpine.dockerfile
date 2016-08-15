@@ -18,6 +18,12 @@ RUN addgroup gunicorn \
     && chown gunicorn:gunicorn /var/run/gunicorn \
     && adduser nginx gunicorn
 
+# Create celery user and group, make directory for beat schedule file.
+RUN addgroup celery \
+    && adduser -S -s /bin/sh -G celery celery \
+    && mkdir /var/run/celery \
+    && chown celery:celery /var/run/celery
+
 EXPOSE 8000
 
 COPY ./django-entrypoint.sh /scripts/

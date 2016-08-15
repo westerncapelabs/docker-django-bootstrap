@@ -45,7 +45,7 @@ All these instructions occur directly after the `FROM` instruction in your Docke
 
 By default, the [`django-entrypoint.sh`](django-entrypoint.sh) script is run when the container is started. This script runs a once-off `django-admin migrate` to update the database schemas and then launches `nginx` and `gunicorn` to run the application.
 
-This [`django-entrypoint.sh`](django-entry-point.sh) script also allows you to create a Django super user account if needed. Setting the `SUPERUSER_PASSWORD` environment variable will result in a Django superuser account being made with the `admin` username. This will only happen if no `admin` user exists. 
+This [`django-entrypoint.sh`](django-entry-point.sh) script also allows you to create a Django super user account if needed. Setting the `SUPERUSER_PASSWORD` environment variable will result in a Django superuser account being made with the `admin` username. This will only happen if no `admin` user exists.
 
 You can skip the execution of this script and run other commands by overriding the `CMD` instruction. For example, to run a Celery worker, add the following to your Dockerfile:
 ```dockerfile
@@ -69,7 +69,42 @@ Docker uses various caching mechanisms to speed up image build times. One of tho
 
 It's a good idea to have Docker ignore the `.git` directory because every git operation you perform will result in files changing in that directory (whether you end up in the same state in git as you previously were or not). Also, you probably shouldn't be working with your git repo inside the container.
 
-## Configuration
+## Celery
+It's common for Django applications to have [Celery](http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html) workers performing tasks alongside the actual website. In most cases it makes sense to run each Celery process in a container separate from the Django/Gunicorn one, so as to follow the rule of one(*-ish*) process per container. But in some cases, running a whole bunch of containers for a relatively simple site may be overkill. Additional containers generally have some overhead in terms of CPU and, especially, memory usage.
+
+This image provides the option to run a Celery worker inside the container, alongside Gunicorn/Nginx. To run a Celery worker you must set the `CELERY_APP` environment variable.
+
+### Configuration
+The following environment variables can be used to configure Celery. A number of these can also be configured via the Django project's settings.
+
+#### `CELERY_APP`:
+* Required: yes
+* Default: none
+* Celery option: `-A`/`--app`
+
+#### `CELERY_BROKER`:
+* Required: no
+* Default: none
+* Celery option: `-b`/`--broker`
+
+#### `CELERY_LOGLEVEL`:
+* Required: no
+* Default: `INFO`
+* Celery option: `-l`/`--loglevel`
+
+#### `CELERY_CONCURRENCY`:
+Note that by default Celery runs as many worker processes as there are processors. **We instead default to 1 worker process** here to ensure containers use a consistent and small amount of resources. If you need to run many worker processes, they should be in separate containers.
+* Required: no
+* Default: **1**
+* Celery option: `-c`/`--concurrency`
+
+#### `CELERY_BEAT`:
+Set this option to any non-empty value to have a [Celery beat](http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html) scheduler process run as well.
+* Required: no
+* Default: none
+* Celery option: n/a
+
+## Other configuration
 ### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
