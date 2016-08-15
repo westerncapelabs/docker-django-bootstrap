@@ -20,7 +20,7 @@ RUN addgroup gunicorn \
 
 # Create celery user and group, make directory for beat schedule file.
 RUN addgroup celery \
-    && adduser -S -s /bin/sh -G celery celery \
+    && adduser -S -G celery celery \
     && mkdir /var/run/celery \
     && chown celery:celery /var/run/celery
 
