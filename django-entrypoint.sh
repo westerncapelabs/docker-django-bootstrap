@@ -28,6 +28,7 @@ if [ -n "$CELERY_APP" ]; then
   # Worker
   su-exec celery \
     celery worker \
+      --pidfile /var/run/celery/worker.pid \
       --app "$CELERY_APP" \
       ${CELERY_BROKER:+--broker "$CELERY_BROKER"} \
       --loglevel "${CELERY_LOGLEVEL:-INFO}" \
@@ -37,7 +38,7 @@ if [ -n "$CELERY_APP" ]; then
   if [ -n "$CELERY_BEAT" ]; then
     su-exec celery \
       celery beat \
-        --pidfile="" \
+        --pidfile /var/run/celery/beat.pid \
         --schedule /var/run/celery/celerybeat-schedule \
         --app "$CELERY_APP" \
         ${CELERY_BROKER:+--broker "$CELERY_BROKER"} \
@@ -50,6 +51,7 @@ fi
 # FIXME: Have to specify umask as decimal, not octal (0o117 = 79):
 # https://github.com/benoitc/gunicorn/issues/1325
 exec gunicorn "$APP_MODULE" \
+  --pid /var/run/gunicorn/gunicorn.pid \
   --user gunicorn --group gunicorn --umask 79 \
   --bind unix:/var/run/gunicorn/gunicorn.sock \
   ${GUNICORN_ACCESS_LOGS:+--access-logfile -} \
