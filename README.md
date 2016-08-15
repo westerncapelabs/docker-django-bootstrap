@@ -74,6 +74,8 @@ It's common for Django applications to have [Celery](http://docs.celeryproject.o
 
 This image provides the option to run a Celery worker inside the container, alongside Gunicorn/Nginx. To run a Celery worker you must set the `CELERY_APP` environment variable.
 
+Note that, as with Django, your project needs to specify Celery in its `install_requires` in order to use Celery. Celery is not installed in this image by default.
+
 ### Configuration
 The following environment variables can be used to configure Celery. A number of these can also be configured via the Django project's settings.
 
