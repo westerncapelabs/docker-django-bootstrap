@@ -6,6 +6,7 @@ setup(
     author='Praekelt Foundation',
     author_email='dev@praekeltfoundation.org',
     install_requires=[
+        'celery',
         'Django >=1.10,<1.11'
     ],
 )
