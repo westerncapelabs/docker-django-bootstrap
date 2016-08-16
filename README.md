@@ -70,7 +70,44 @@ Additionally, you shouldn't need any *Git* stuff inside your Docker image. It's 
 
 **NOTE:** Unlike `.gitignore` files, `.dockerignore` files do *not* apply recursively to subdirectories. So, for example, while the entry `*.pyc` in a `.gitignore` file will cause Git to ignore `./abc.pyc` and `./def/ghi.pyc`, in a `.dockerignore` file, that entry will cause Docker to ignore only `./abc.pyc`. This is very unfortunate. In order to get the same behaviour from a `.dockerignore` file, you need to add an extra leading `**/` glob pattern — i.e. `**/*.pyc`. For more information on the `.dockerignore` file syntax, see the [Docker documentation](https://docs.docker.com/engine/reference/builder/#dockerignore-file).
 
-## Configuration
+## Celery
+It's common for Django applications to have [Celery](http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html) workers performing tasks alongside the actual website. In most cases it makes sense to run each Celery process in a container separate from the Django/Gunicorn one, so as to follow the rule of one(*-ish*) process per container. But in some cases, running a whole bunch of containers for a relatively simple site may be overkill. Additional containers generally have some overhead in terms of CPU and, especially, memory usage.
+
+This image provides the option to run a Celery worker inside the container, alongside Gunicorn/Nginx. To run a Celery worker you must set the `CELERY_APP` environment variable.
+
+Note that, as with Django, your project needs to specify Celery in its `install_requires` in order to use Celery. Celery is not installed in this image by default.
+
+### Configuration
+The following environment variables can be used to configure Celery. A number of these can also be configured via the Django project's settings.
+
+#### `CELERY_APP`:
+* Required: yes
+* Default: none
+* Celery option: `-A`/`--app`
+
+#### `CELERY_BROKER`:
+* Required: no
+* Default: none
+* Celery option: `-b`/`--broker`
+
+#### `CELERY_LOGLEVEL`:
+* Required: no
+* Default: `INFO`
+* Celery option: `-l`/`--loglevel`
+
+#### `CELERY_CONCURRENCY`:
+Note that by default Celery runs as many worker processes as there are processors. **We instead default to 1 worker process** here to ensure containers use a consistent and small amount of resources. If you need to run many worker processes, they should be in separate containers.
+* Required: no
+* Default: **1**
+* Celery option: `-c`/`--concurrency`
+
+#### `CELERY_BEAT`:
+Set this option to any non-empty value to have a [Celery beat](http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html) scheduler process run as well.
+* Required: no
+* Default: none
+* Celery option: n/a
+
+## Other configuration
 ### Gunicorn
 Gunicorn is run with some basic configuration:
 * Runs WSGI app defined in `APP_MODULE` environment variable
