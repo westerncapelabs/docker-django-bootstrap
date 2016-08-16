@@ -18,11 +18,29 @@ RUN pip install gunicorn
 COPY ./nginx/ /etc/nginx/
 RUN rm /etc/nginx/conf.d/default.conf
 
+# Create gunicorn user and group, make directory for socket, and add nginx user
+# to gunicorn group so that it can read/write to the socket.
+RUN addgroup gunicorn \
+    && adduser --system --ingroup gunicorn gunicorn \
+    && mkdir /var/run/gunicorn \
+    && chown gunicorn:gunicorn /var/run/gunicorn \
+    && adduser nginx gunicorn
+
+# Create celery user and group, make directory for beat schedule file.
+RUN addgroup celery \
+    && adduser --system --ingroup celery celery \
+    && mkdir /var/run/celery \
+    && chown celery:celery /var/run/celery
+
 EXPOSE 8000
 
 COPY ./django-entrypoint.sh /scripts/
 CMD ["django-entrypoint.sh"]
 
+WORKDIR /app
+
 ONBUILD COPY . /app
-ONBUILD WORKDIR /app
+# chown the app directory after copying in case the copied files include
+# subdirectories that will be written to, e.g. the media directory
+ONBUILD RUN chown -R gunicorn:gunicorn /app
 ONBUILD RUN pip install -e .
