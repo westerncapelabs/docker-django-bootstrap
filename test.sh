@@ -46,11 +46,14 @@ curl -fsL http://localhost:8000/admin | fgrep '<title>Log in | Django site admin
 curl -fsL http://localhost:8000/static/admin/css/base.css | fgrep 'DJANGO Admin styles'
 
 # Check that if we say we support gzip, then Nginx gives us that
-curl -fIH 'Accept-Encoding: gzip' http://localhost:8000/static/admin/css/base.css | fgrep 'Content-Encoding: gzip'
+curl -fIH 'Accept-Encoding: gzip' http://localhost:8000/static/admin/css/base.css \
+  | fgrep -e 'Content-Encoding: gzip' \
+          -e 'Vary: Content-Encoding'
 
 # Check that if we fetch a filetype that shouldn't be gzipped, then it isn't
 curl -fIH 'Accept-Encoding: gzip' http://localhost:8000/static/admin/fonts/Roboto-Light-webfont.woff \
-  | fgrep -v 'Content-Encoding: gzip'
+  | fgrep -v 'Content-Encoding: gzip' \
+  | fgrep 'Content-Type: application/font-woff'
 
 
 # Celery tests
