@@ -6,6 +6,11 @@ if [ -z "$APP_MODULE" ]; then
   exit 1
 fi
 
+# Do an extra chown of the /app directory at runtime in addition to the one in
+# the build process in case any directories are mounted as root-owned volumes at
+# runtime.
+chown -R gunicorn:gunicorn /app
+
 # Run the migration as the gunicorn user so that if it creates a local DB (e.g.
 # when using sqlite in development), that DB is still writable. Ultimately, the
 # user shouldn't really be using a local DB and it's difficult to offer support
