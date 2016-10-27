@@ -1,4 +1,4 @@
-FROM praekeltfoundation/python-base:alpine
+FROM praekeltfoundation/python3-base:alpine
 MAINTAINER Praekelt Foundation <dev@praekeltfoundation.org>
 
 # Install libpq for PostgreSQL support and Nginx to serve everything
