@@ -7,6 +7,7 @@ setup(
     author_email='dev@praekeltfoundation.org',
     install_requires=[
         'celery >=3.1,<4.0',
-        'Django >=1.10,<1.11'
+        'Django >=1.10,<1.11',
+        'django-reversion',
     ],
 )
