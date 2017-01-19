@@ -17,6 +17,8 @@ chown -R gunicorn:gunicorn /app
 # for all the cases in which a local DB might be created -- but here we do the
 # minimum.
 su-exec gunicorn django-admin migrate --noinput
+# Running revision creation
+su-exec gunicorn django-admin createinitialrevisions --noinput
 
 if [ -n "$SUPERUSER_PASSWORD" ]; then
   echo "from django.contrib.auth.models import User
