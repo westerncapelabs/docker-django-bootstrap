@@ -10,6 +10,7 @@ RUN apt-key adv --keyserver hkp://pgp.mit.edu:80 --recv-keys 573BFD6B3D8FBC64107
     && apt-get-install.sh \
         libpq5 \
         build-essential \
+        git-core \
         nginx=${NGINX_VERSION}
 
 # Install gunicorn
