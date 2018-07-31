@@ -57,6 +57,7 @@ fi
 # https://github.com/benoitc/gunicorn/issues/1325
 exec gunicorn "$APP_MODULE" \
   --pid /var/run/gunicorn/gunicorn.pid \
+  --timeout 120 \
   --user gunicorn --group gunicorn --umask 79 \
   --bind unix:/var/run/gunicorn/gunicorn.sock \
   ${GUNICORN_ACCESS_LOGS:+--access-logfile -} \
